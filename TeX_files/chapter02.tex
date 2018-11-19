@@ -1,0 +1,345 @@
+\chapter{线性方程的数值方法}
+本章介绍线性对流方程和线性双曲守恒系统的基本数值方法. \\
+考虑一维的时间相关Cauchy问题
+\begin{eqnarray} \label{lin-hyp-eq}
+	u_t + Au_x &=& 0, \hspace{0.2in},-\infty < x < \infty,\hspace{0.1in} t\ge 0 \\
+	u(x,0) &=& u_0(x)
+\end{eqnarray}
+为了进行数值计算，需要在$x-t$平面进行离散.出于简单起见，采用均匀网格.空间网格取为$h \equiv \Delta x$，时间步长取$k \equiv \Delta t$.定义离散网格点$(x_j,t_n)$为
+\begin{eqnarray}
+	x_j &=& jh, \hspace{0.1in} j =\ldots,-1,0,1,2,\ldots \\
+	y_j &=& nk, \hspace{0.1in} k = 0,1,\ldots 
+\end{eqnarray}
+定义网格中点是有用的
+\begin{equation}
+	x_{j+1/2} = x_j + 1/2h = (j+1/2)h
+\end{equation}
+有限差分方法得到网格点上的精确解$u(x_j,t_n)$的近似解$U_j^n$.对于双曲方程组，$U_j^n \in \mathbb{R}^m$.网格点上的精确解可以记为
+\begin{equation}
+	u_j^n = u(x_j,t_n).
+\end{equation}
+在研究双曲守恒律时，更方便的是定义函数$u(x,t_n)$在网格单元的平均值，
+\begin{equation}
+	\bar{u}_j^n = \frac{1}{h}\int_{x_{j-1/2}}^{x_{j+1/2}} u(x,t_n) dx
+\end{equation}
+与离散点的值相比，网格平均值更合理.初始条件的离散值可以选择给定网格点上的值$U_j^0=u_j^0$，或者是给网格平均值$U_j^n=\bar{u}_j^n$，后者更合理.\\
+通常还会根据$U_j^n$定义一个分段常值函数，
+\begin{equation} \label{piece-const-function}
+	U_k(x,t)=U_j^n,\hspace{0.1in} (x,t)\in[x_{j-1/2},x_{j+1/2}) \times [t_n,t_{n+1}) 
+\end{equation}
+对于双曲守恒律问题，我们假定当$k,h \to 0$时网格比$k/h$为常数，所以$k$定义了唯一的网格.因此可以用$k$来表示分段函数.\\
+在实际计算时，计算区域是有界的，比如$a\le x \le b$.因此需要考虑合适的边界条件.在研究格式时，我们通常选择周期性边界条件，
+\begin{equation}
+	u(a,t) = u(b,t), \hspace{0.1in} \forall t \ge 0
+\end{equation}
+相当于求解周期性的Cauchy问题.对于具有周期性的问题，可以采用Fourier变换进行求解.\\
+根据$u_0(x)$定义了初始离散值$U^0$，然后采用时间步进方法从$U^0$计算$U^1$，然后根据$U^1$计算$U^2$，依此类推.这种方法称为两层方法(two-level).也可以采用$r+2$层方法，即计算$U^{n+1}$需要利用$U^{n},U^{n-1},\ldots,U^{n-r}$.\\
+可以用多种方法构造有限差分格式，很多方法是将有限差分来代替导数.比如用前向差分来近似$u_t$，中心差分来近似$u_x$，
+\begin{equation} \label{Richardson scheme}
+	\frac{U_{j}^{n+1} - U_{j}^{n}}{k} + A\frac{U_{j+1}^{n} - U_{j-1}^{n}}{2h} = 0
+\end{equation}
+从上式得到
+\begin{equation} \label{explicit method}
+	U_{j}^{n+1} = U_{j}^n - \frac{k}{2h}(U_{j+1}^{n} - U_{j-1}^{n})
+\end{equation}
+虽然这个格式的到处十分自然，但是这个格式是不稳定的.
+如果用中心差分近似$n+1$时刻的$u_x$，即
+\begin{equation}
+\frac{U_{j}^{n+1} - U_{j}^{n}}{k} + A\frac{U_{j+1}^{n+1} - U_{j-1}^{n+1}}{2h} = 0
+\end{equation}
+或者
+\begin{equation} \label{implicit eq}
+U_{j}^{n+1} = U_{j}^n - \frac{k}{2h}(U_{j+1}^{n+1} - U_{j-1}^{n+1})
+\end{equation}
+则格式是稳定的.为了根据$U^n$计算$U^{n+1}$，必须求解由所有节点方程(\ref{implicit eq})构成的耦合系统.对于标量方程，得到$N\times N$系统，系数矩阵是三对角矩阵.而当$u\in \mathbb{R}^m$式，离散系统是$mN\times mN$. \\
+方法(\ref{explicit method})显式计算$U^{n+1}$，称为显示方法.与此相反，方法(\ref{implicit eq})称为隐式方法.时间相关双曲守恒律很少采用隐式方法.\\
+在格式中涉及到的网格点称为格式的模板(stencil).图给出了常用格式的模板.大多数格式是对导数的直接逼近，但是Lax-Wendroff格式是一个例外.Lax-Wendroff格式基于Taylor级数展开，
+\begin{equation*} \label{Taylor series}
+	u(x,t+k) = u(x,t) +  ku_t(x,t) + \frac{k^2}{2}u_{tt}(x,t) + \ldots 
+\end{equation*}
+由方程(\ref{lin-hyp-eq})，$u_t = -Au_x$，
+\begin{equation} \label{utt_to_uxx}
+	u_{tt} = -Au_{xt} = A^2 u_{xx} 
+\end{equation}
+代入到(\ref{Taylor series}),
+\begin{equation}
+	u(x,t+k) = u(x,t) +  ku_t(x,t) + \frac{k^2}{2}A^2u_{xx}(x,t) + \ldots 	
+\end{equation}
+方程右端保留前三项，然后用中心差分离散空间导数，就得到Lax-Wendroff格式.\\
+Beam-Warming格式是单侧版本的Lax-Wendroff，利用单侧的二阶格式近似空间导数.\\
+除了蛙跳格式是三层格式以外，表中其他格式都是二层格式.三层以上格式具有额外的困难，需要更多的存储，并且需要特殊的启动算法.我们主要研究两层格式，并引入两层格式的记法，
+\begin{equation} \label{operator form}
+	U^{n+1} = \mathcal{H}_k(U^n)
+\end{equation}
+$U^{n+1}$代表$n+1$时刻的解向量.对于网格节点$j$上的$U_j^{n+1}$，取决于与$j$相邻的某些节点在$n$时刻的值，即
+\begin{equation}
+	U_j^{n+1} =  \mathcal{H}_k(U^n;j)
+\end{equation}
+(\ref{explicit method})中，算子$\mathcal{H}_k$的形式为
+\begin{equation}
+	\mathcal{H}_k(U^n;j) = U_{j}^n - \frac{k}{2h}(U_{j+1}^{n} - U_{j-1}^{n})
+\end{equation}
+有限差分算子可以推广到作用于连续函数，而不是作用于离散点上的函数.如果$\upsilon(x)$是关于$x$的任意函数，我们定义新函数$\mathcal{H}_k(\upsilon)$在$x$处的形式为对$x$处的$\upsilon$应用差分格式.在任意一点$x$处，$\mathcal{H}_k(\upsilon)$的值表示为$\mathcal{H}_k(\upsilon;x)$.对于方法(\ref{explicit method}),
+
+\begin{equation}
+	\mathcal{H}_k(\upsilon) = [\mathcal{H}_k(\upsilon)](x) = \upsilon(x)- \frac{k}{2h}A(\upsilon(x+h)-\upsilon(x-h)
+\end{equation}
+将差分算子作用于分段常数函数$U_k(\cdot,t)$(在(\ref{piece-const-function})中定义)，得到
+\begin{equation}
+	U_k(x;t+k) = \mathcal{H}_k(U_k(\cdot,t);x)
+\end{equation}
+以上表明$\mathcal{H}_k$既可以表示离散算子，也可以表示连续算子.\\
+表中所列的方法都是线性的，由此得到的算子是线性算子，
+\begin{equation}
+	\mathcal{H}_k(\alpha U_n + \beta V_n) = \alpha \mathcal{H}_k(U_n) + \beta \mathcal{H}_k(V_n),
+\end{equation}
+对于任意的网格函数$U^n,V_n$和标量$\alpha,\beta$都成立.线性算子都可以表示为矩阵形式，因此(\ref{operator form})可以改写为
+\begin{equation}
+	U^{n+1} = \mathcal{H}_k U^n.
+\end{equation}
+其中$\mathcal{H}_k$是一个$mN \times mN$的矩阵($N$是网格节点数).
+
+\section{全局误差和收敛性}
+我们最终感兴趣的是计算解$U_j^n$逼近精确解的程度，为此定义全局误差来表示计算解与精确解的差别.在研究光滑解是，定义网格点上误差是比较方便的.
+\begin{equation}
+	E_j^n = U_j^n - u_j^n.
+\end{equation}
+对于守恒律，通常还定义网格平均值的误差，即
+\begin{equation}
+	\bar{E}_j^n = U_j^n - \bar{u}_j^n.
+\end{equation}
+以上两种误差可以由误差函数统一起来，
+\begin{equation}
+	E_k(x,t) = U_k(x,t) - u(x,t)
+\end{equation}
+$E_j^n$是网格点上的值$E_k(x_j,t_n)$，而$\bar{E}_j^n$是$E_k$在$n$时刻的网格平均值.\\
+对于某一范数$\Vert\cdot\Vert$，如果对于任意固定的$t$，和对于任意的有意义的初始条件$u_0$，当
+\begin{equation}
+	\Vert E_k(\cdot,t) \Vert \to 0, \hspace{0.1in} as \hspace{0.05in} k \to 0
+\end{equation}
+则称方法收敛.
+
+\section{范数}
+在讨论收敛性时，必须选择采用何种范数.有可能会出现采用一种范数，方法收敛，而换一种范数，方法不收敛的情况.守恒律问题，通常采用1-范数，对于函数$\upsilon(x)$
+\begin{equation}
+	\Vert \upsilon \Vert_1 = \int_{-\infty}^{\infty} \lvert \upsilon(x) \rvert dx
+\end{equation}
+因此，对于某固定的时刻$t$
+\begin{equation}
+\Vert E_k(\cdot,t) \Vert_1 = \int_{-\infty}^{\infty} \lvert E_k(x,t) \rvert dx
+\end{equation}
+在理想情况下，可能会期望在$\infty$-范数下收敛，
+\begin{equation}
+	\Vert \upsilon \Vert_1 = \sup_x \lvert \upsilon(x) \rvert 
+\end{equation}
+但是如果解存在间断，在间断附近的网格点上的误差不会随着网格的细化而一致收敛到0.采用1-范数可以得到很好的收敛性，但是采用$\infty$-范数则不会有好的收敛性.\\
+对于线性问题，还广泛采用2-范数，
+\begin{equation}
+	\Vert \upsilon \Vert_2 = \left[ \int_{-\infty}^{\infty} \lvert \upsilon(x)\rvert^2 dx \right]^{1/2} 
+\end{equation}
+线性问题可以运用Fourier变化，并且Parseval等式表明Fourier变换$\hat{\upsilon}(\xi)$和$\upsilon(x)$具有相同的2-范数，这可以简化对问题的分析.\\
+本文主要缺省采用1-范数.对于离散函数，定义离散形式的1-范数，
+\begin{equation}
+	\Vert U^n \Vert_1 = h \sum_j \lvert U_j^n \rvert 
+\end{equation}
+显然，这与函数范数的定义是相容的，
+\begin{equation}
+	\Vert U^n \Vert_1 = \Vert U_k(\cdot,t) \Vert_1.
+\end{equation}
+尽管我们最终的目的是证明计算解的收敛性，获得全局误差的显式界限(包括收敛速率)，但是直接得到收敛性是很困难的。为此我们先研究局部截断误差(local truncation error)和判断稳定性的方法，最后通过稳定性和局部误差来估计全局误差.
+
+\section{局部截断误差}
+局部截断误差$L_k(x,t)$是测量在局部，差分方程逼近微分方程的程度. 将微分方程的精确解$u(x_j,t_n)$代替差分方程中的$U_j^n$就得到局部截断误差.显然，微分方程的精确解只是差分方程解的近似，微分方程精确解满足差分方程的程度可以反映差分方程解逼近微分方程精确解的好坏.\\
+作为例子，给出Lax-Friedriches格式的局部截断误差.Lax-Friedriches格式是将(\ref{Richardson scheme})中的$U_j^n$用$\frac{1}{2}(U_{j-1}^n+U_{j+1}^n)$代替，这样处理后，只要$k/h$足够小，格式是稳定的.
+\begin{equation} \label{LF scheme}
+\frac{U_{j}^{n+1} - \frac{1}{2}(U_{j-1}^n+U_{j+1}^n)}{k} + A\frac{U_{j+1}^{n} - U_{j-1}^{n}}{2h} = 0
+\end{equation}
+在上式中，在对应的网格点$u(x,t)$代替$U_j^n$,方程右侧将不为0，我们将得到局部截断误差，
+\begin{equation} \label{LF scheme}
+L_k(x,t) = \frac{u(x,t+k) - \frac{1}{2}(u(x-h,t)+u(x+h,t)}{k} + A\frac{u(x+h,t) - u(x-h,t)}{2h}
+\end{equation}
+
+在计算截断误差时，总是假定解是光滑的，然后对上式右端各项关于$u(x,t)$进行Taylor展开($u \equiv u(x,t)$)，得到
+\begin{equation}
+	L_k(x,t) = u_t + Au_x + \frac{1}{2}\left( ku_{tt} - \frac{h^2}{k}u_{xx}\right) + O(h^2)
+\end{equation}
+$u$是精确解，因此$u_t + Au_x=0$，并利用(\ref{utt_to_uxx})，得到
+\begin{eqnarray}
+	L_k(x,t) &=&\frac{k}{2}\left( A^2 - \frac{h^2}{k^2} I \right) u_{xx}(x,t) + O(k^2)  \nonumber \\
+	&=& O(k) \hspace{0.1in} as \hspace{0.05in} k \to 0
+\end{eqnarray}
+因为我们假定$\frac{h}{k}$为常数，所以在网格细化的过程中$\frac{h^2}{k^2}$为常数. \\
+应用Taylor余项定理，并假设$u(x,t)$的各阶导数一致有界，可以得到局部截断误差满足
+
+\begin{equation}
+\abs{L_k(x,t)} \le Ck , \hspace{0.1in} for \hspace{0.05in} all \hspace{0.05in} k < k_0
+\end{equation}
+对于线性问题，$u(x,t)$的导数的界可以从初值得到，因此$C$只与初值有关.若进一步假定$u_0$是紧支函数，则在每一时刻$t$，$L_k(x,t)$具有有限的1-范数，故
+\begin{equation} \label{LF-LTE}
+	\norm{L_k(\cdot,t)} \le C_L k
+\end{equation}
+$C_L$同样只取决于$u_0$. \\
+根据\eqref{LF-LTE}，Lax-Friedriches格式具有1阶精度.\\
+下面给出任意2层格式的局部截断误差定义
+\begin{mydef}
+	对于任意的2层格式，局部截断误差为
+	\begin{equation} \label{LTE}
+		L_k(x,t) = \frac{1}{k} [u(x,t+k)-\mathcal{H}_k(u(\cdot,t);x)]
+	\end{equation}
+\end{mydef}
+
+\begin{mydef}
+	格式相容是指，
+	\begin{equation}
+		\norm{L_k(\cdot,t)} \to 0, \hspace{0.1in} as \hspace{0.05in} k \to 0
+	\end{equation}
+\end{mydef}
+
+\begin{mydef}
+	格式具有$p$阶精度，是指对于充分光滑的，紧支的初始函数，存在常数$C_L$，使得局部截断误差满足
+	\begin{equation} \label{error order}
+		\norm{L_k(\cdot,t)} \le C_L k^p, \hspace{0.1in} for \hspace{0.05in} all \hspace{0.05in} k \le k_0,\hspace{0.05in} t\le T.		
+	\end{equation}
+	可以证明，如果格式是稳定的，对于光滑解，格式的全局误差的阶数和局部误差相同.
+\end{mydef}
+
+\section{稳定性}
+\eqref{LTE}可以写成
+\begin{equation}
+	u(x,t+k)=\mathcal{H}_k(u(\cdot,t);x)+kL_k(x,t)
+\end{equation}
+因为数值解满足\eqref{operator form}，与上式相减，得到
+\begin{equation}
+	E_k(x,t+k) = \mathcal{H}_k(E_k(\cdot,t);x) -kL_k(x,t)
+\end{equation}
+对于线性格式，上式中的算子可以提出来，
+\begin{equation}
+	E_k(\cdot,t+k) = \mathcal{H}_k E_k(\cdot,t) -kL_k(\cdot,t)	
+\end{equation}
+$t+k$时刻的误差包含两部分，$-tL_k$为这一步引入的局部误差，$\mathcal{H}_k(E_k(\cdot,t);x)$为之前计算的累积误差.通过简单的计算，可以得到$t_n$时刻，线性格式误差的递归关系式，
+\begin{equation} \label{recursive relation}
+	E_k(\cdot,t_n) = \mathcal{H}_k^n E_k(\cdot,0) - k\sum_{i=1}^n \mathcal{H}_k^{n-i} L_k(\cdot,t_{i-1})
+\end{equation}
+为了保证全局误差有界，必须确保局部误差$L_k(\cdot,t_{i-1})$在经过$n-i$次算子作用后，误差不会放大.这要求格式是稳定的，一般称这种稳定性为Lax-Richtmyer稳定性.
+\begin{mydef}
+	格式是稳定的是指对于任意的时间$T$，存在常数$C_s$和$k_0>0$，当$k<k_0$时，有
+	\begin{equation}
+		\norm{\mathcal{H}_k^n} \le C_S,\;for\:all \: nk\le T,\: k \le k_0
+	\end{equation}
+\end{mydef}
+特别地，对于所有的$n,k$，当$\norm{\mathcal{H}_k} \le 1$时，由于$\norm{\mathcal{H}_k^n} \le \norm{\mathcal{H}_k}^n \le 1$，因此格式稳定.更一般的情形，可以允许误差一定程度的增长.例如，当
+\begin{equation}
+	\norm{\mathcal{H}_k} \le 1+\alpha_k \; for \: all \: k\le k_0
+\end{equation}
+成立时，有
+\begin{equation}
+	\norm{\mathcal{H}_k^n} \le (1+\alpha k)^n \le e^{\alpha kn} \le e^{\alpha T}
+\end{equation}	
+其中$k,n$满足$nk \le T$.
+
+\section{Lax 等价定理}
+Lax等价定理的内容为：对于相容的线性差分格式，稳定性是收敛性的充分必要条件. 该定理是线性差分格式最基本的收敛定理.\\
+定理的详细证明可参考文献.下面简单说明至少在光滑初值条件下，充分性为什么成立，以及解释为什么全局误差的阶数和局部误差的阶数相同.\\
+根据\eqref{recursive relation}，两边取范数，并应用三角不等式，
+\begin{equation}
+	\norm{E_k(\cdot,t_n)} \le \norm{\mathcal{H}_k^n}\norm{E_k(\cdot,0)} + k\sum_{i=1}^{n}\norm{\mathcal{H}_k^{n-i}} \norm{L_k(\cdot,t_{i-1})}
+\end{equation}
+由稳定性条件，对于$i=1,0,\ldots,n$，有$\norm{\mathcal{H}_k^{n-i}} \le C_S$，因此
+\begin{equation}
+	\norm{E_k(\cdot,t_n)} \le C_S \left(\norm{E_k(\cdot,0)} + k\sum_{i=1}^{n}\norm{L_k(\cdot,t_{i-1})}\right)
+\end{equation}
+如果格式具有$p$阶精度，因此根据\eqref{error order}，对于$kn=t_n \le T$，有
+\begin{equation}
+	\norm{E_k(\cdot,t_n)} \le C_S \left(\norm{E_k(\cdot,0)} + TC_L k^p \right)
+\end{equation}
+如果初值不存在误差，则全局误差的阶数与局部误差相同.假设当$k \to 0$时，初始误差亦以$O(k^p)$衰减，因此数值解以期望的速率收敛.最终我们可以得到全局误差界的形式，当满足$t\le T, k \le k_0$时
+\begin{equation}
+	\norm{E_k(\cdot,t)} \le C_E k^p.
+\end{equation}
+
+\begin{myexample}
+	给出标量对流方程$u_t + au_x =0$的Lax-Friedrichs格式，并说明当$k,h$满足下列关系时，格式是稳定的.
+	\begin{equation} \label{LF restrication}
+		\left|\frac{ak}{h} \right|  \le 1
+	\end{equation}
+	这是Lax-Friedrichs格式的稳定性限制条件.\\
+	标量对流方程的Lax-Friedrichs格式为
+	\begin{equation}
+		U_j^{n+1}=\frac{1}{2}(U_{j-1}^n+U_{j+1}^n) - \frac{ak}{2h}(U_{j+1}^n-U_{j-1}^n)
+	\end{equation}
+	因此
+	\begin{eqnarray*}
+		\norm{U^{n+1}} &=& h\sum_j \abs{U_j^{n+1}} \\
+		&\le& \frac{h}{2} \left[ \sum_j \left|  \left( 1-\frac{ak}{h}\right)U_{j+1}^{n} \right| + \sum_j \left|  \left( 1+\frac{ak}{h}\right)U_{j-1}^{n} \right|\right]
+	\end{eqnarray*}
+根据\eqref{LF restrication}，有
+	\begin{equation}
+		1-\frac{ak}{h} \ge 0, \hspace{0.1in} 1+\frac{ak}{h} \ge 0
+	\end{equation}
+	因此
+ 	\begin{eqnarray*}
+		\norm{U^{n+1}} &\le& \frac{h}{2} \left[ \sum_j \left|  \left( 1-\frac{ak}{h}\right)U_{j+1}^{n} \right| + \sum_j \left|  \left( 1+\frac{ak}{h}\right)U_{j-1}^{n} \right|\right] \\
+		&=&  
+		\frac{1}{2} \left[ \sum_j   \left( 1-\frac{ak}{h}\right)\norm{U^n}  + \sum_j \left( 1+\frac{ak}{h}\right)\norm{U^{n}} \right] \\
+		&=& \norm{U^n}
+	\end{eqnarray*}
+	故$\norm{U^{n+1}} \le \norm{U^n}$， $\norm{H_k} \le 1$，因此限制条件\eqref{LF restrication}是格式稳定的充分条件.事实上也可以证明，它也是必要条件.
+\end{myexample}
+下面考虑线性方程组.我们假定系数矩阵$A$是可以对角化的，令$\upsilon(x,t) = R^{-1}u(x,t)$，其中$R$是$A$的特征向量矩阵，则方程组可以解耦，
+\begin{equation}
+	\upsilon_t + \Lambda \upsilon_x = 0,
+\end{equation}
+得到$m$个独立的标量对流方程.\\
+对差分方程应用同样的方法，令$V_j^n = R^{-1}U_j^n$，在Lax-Friedrichs格式两侧乘以$R^{-1}$，得到
+\begin{equation}
+	V_j^{n+1}=\frac{1}{2}(V_{j-1}^n+V_{j+1}^n) - \frac{k}{2h}\Lambda(V_{j+1}^n-V_{j-1}^n)
+\end{equation}
+以上解耦式得到m个独立的标量差分方程. 第$p$个方程的稳定性限制条件为
+	\begin{equation} \label{LF s.c.}
+\left|\frac{\lambda_p k}{h} \right|  \le 1
+\end{equation}
+如果解耦后的每一个差分方程都满足\eqref{LF s.c.}，则格式是稳定的，因此$V_j^n$会收敛到$\upsilon(x,t)$，$U_j^n=RV_j^n$会收敛到$u(x,t)$.对于线性方程组，当$A$的特征值$\lambda_p$都满足\eqref{LF s.c.}，Lax-Friedrichs格式稳定.
+
+\begin{myexample}
+	考虑标量对流方程的单侧(one-side)格式，
+	\begin{equation} \label{upwind plus}
+		U_j^{n+1} = U_j^n - \frac{ak}{h}(U_j^n - U_{j-1}^n)
+	\end{equation}
+	的稳定性.
+	类似于Lax-Friedrichs格式,
+	\begin{equation}
+		\norm{U^{n+1}} \le h \left[ \sum_j    \left| \left( 1-\frac{ak}{h}\right)U_j^n \right|  + \sum_j \left| \left( \frac{ak}{h}\right)U_{j-1}^n \right|  \right]
+	\end{equation}
+	当
+	\begin{equation}\label{upw s.c.}
+		0 \le \frac{ak}{h} \le 1,
+	\end{equation}
+	时，$U^{n+1}\le U^n$，格式是稳定的.
+\end{myexample}
+由于$k,h >0$，稳定性条件\eqref{upw s.c.}要求$a>0$，因此单侧格式\eqref{upwind plus}只适用于$a>0$的情形.对于方程组，Lax-Friedrichs格式的稳定性要求
+	\begin{equation}
+    	 0 \le \frac{\lambda_p k}{h}   \le 1
+	\end{equation}
+对$A$的所有特征值都成立.\\
+同样可以构造另一侧的格式
+	\begin{equation} 
+		U_j^{n+1} = U_j^n - \frac{k}{h}A(U_j^n - U_{j-1}^n)
+	\end{equation}
+稳定性条件为
+	\begin{equation}
+	-1 \le \frac{\lambda_p k}{h}   \le 0
+	\end{equation}
+	采用本节的方法分析Lax-Friedrichs格式和单侧格式的稳定性能够成功，是因为这两种格式属于单调格式(monotone scheme). Lax-Wendroff格式和跳蛙格式不属于单调格式，对于非单调格式的稳定性分析需要用到更复杂的方法. 对于线性问题，通常采用Fourier分析(von Neumann方法).这是一种重要的方法，但是不能推广到非线性问题和非线性格式.
+	
+\section{CFL条件}
+
+\section{迎风格式}
+
+\section{数值格式的修正方程}
+	格式的修正方程是指假设存在光滑的数值解，并寻求描述数值解的方程.
+
+例1. 考虑线性标量问题 \nocite{Leveque92}
+	\begin{equation*}
+		u_t + a u_x = 0
+	\end{equation*}
+	且具有光滑的初始条件和周期性边界条件.
