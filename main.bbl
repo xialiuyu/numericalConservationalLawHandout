@@ -1,0 +1,13 @@
+\begin{thebibliography}{1}
+
+\bibitem{apde}
+Alan Jeffrey.
+\newblock {\em Applied partial differential equations: an introduction}.
+\newblock Academic Press, San Diego, 2003.
+
+\bibitem{Leveque92}
+Randell~J. LeVeque.
+\newblock {\em Numerical methods for conservation laws}.
+\newblock Birkhauser Verlag, Basel, 1993.
+
+\end{thebibliography}

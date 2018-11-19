@@ -1,0 +1,126 @@
+\chapter{非线性双曲型方程差分格式}
+\section{守恒律}
+一维标量双曲守恒律方程
+	\begin{equation}
+		u_t + f(u)_x = 0
+	\end{equation}
+	考虑非线性波动方程
+	\begin{equation} \label{density eq}
+		\rho_t + c(\rho)\rho_x = 0
+	\end{equation}
+	其中$\rho$表示某种密度，$c$是扰动传播的速度，它是密度的函数.对这个方程的研究对于非线性双曲守恒律的研究具有重要的意义.下面将讨论该方程解的若干性质.\\
+	$\rho(x,t)$是定义在平面$(x,t)$上的函数.如果沿着曲线
+	\begin{equation}
+		\frac{dx}{dt} = c
+	\end{equation}
+	可以发现$\rho_t + c\rho_x$是$\rho(x,t)$的全导数
+	\begin{equation}
+		\frac{d\rho}{dt}=\frac{\partial \rho}{\partial t} + \frac{dx}{dt}\frac{\partial \rho}{\partial x}
+	\end{equation}
+	满足$\frac{dx}{dt} = c$曲线$l$称为特征线.故沿着特征线
+	\begin{equation}
+		\frac{d\rho}{dt}=0,\hspace{0.1in} \frac{dx}{dt} = c(\rho)
+	\end{equation}
+	由于在特征线上$\rho$为常数，所以特征线为直线.方程(\ref{density eq})的通解可以通过构造一族特征线得到，特征线的斜率$c(\rho)$由当地的$\rho$确定.\\
+	考虑初值问题
+	\begin{equation}
+		\rho=f(x),\hspace{0.1in},-\infty < x < \infty, \hspace{0.1in}, t>0.
+	\end{equation}
+	如果一根特征线与$x$轴交于$x=\xi$，则在整个特征线上$\rho=f(\xi)$，特征线的斜率为$c=c(f(\xi))$，记为$F(\xi)$.特征线方程可以描述为
+	\begin{equation*}
+		x = \xi + F(\xi)t
+	\end{equation*}
+	当$\xi$在整个$x$轴上变化时，我们得到在特征线族
+	\begin{equation} \label{cha line}
+		x = \xi + F(\xi) t
+	\end{equation}
+	在这些特征线上，
+	\begin{equation} \label{sol}
+		\rho = f(\xi),\hspace{0.1in} c=F(\xi)=c(f(\xi)).
+	\end{equation}
+	方程(\ref{cha line}),(\ref{sol})构成了方程的通解.
+	如果不从特征线的构造出发，而是将$\xi(z,t)$视为(\ref{cha line})定义的隐函数，$\rho$由(\ref{sol})给出.根据(\ref{sol})，
+	\begin{equation*}
+		\rho_t = f'(\xi)\xi_t,\hspace{0.1in} \rho_x = f'(\xi)\xi_x,
+	\end{equation*}
+	根据(\ref{cha line})，分别取$x,t$的导数，
+	\begin{eqnarray*}
+		0 &=& F(\xi) + (1+F'(\xi)t)\xi_t, \\
+		1 &=& (1+F'(\xi)t)\xi_x
+	\end{eqnarray*}
+	因此
+	\begin{equation*}
+		\rho_t = -\frac{F(\xi)f'(\xi)}{1+F'(\xi)t},\hspace{0.1in} \rho_x = -\frac{f'(\xi)}{1+F'(\xi)t}
+	\end{equation*}
+	因为$c(\rho)=f(\xi)$，因此
+	\begin{equation*}
+		\rho_t + c(\rho)\rho_x=0
+	\end{equation*}
+	证明解确实满足方程(\ref{density eq}).\\
+	特征线相当于在$x$轴上传播的小波，在特征线上传递着信息.
+	如果$F'(\xi)<0$，将可能发生特征线相交的情况.当\begin{equation}
+		t = -\frac{1}{F'(\xi)}
+	\end{equation}
+	时，$\rho_t,\rho_x$趋于无穷大.当出现这两种情形时，方程(\ref{density eq})的连续解将不存在.
+	
+\section{弱解}
+
+当偏微分方程的解不可微，甚至也不连续时，偏微分方程所代表的意义是什么？此时，我们应该将偏微分方程的解从经典的可微函数拓展到更广泛的一类对象，可以将此类解视为“广义函数”.在更严格的意义上，拓展后的这类解称为“分布(distributions)”.
+
+我们将在分布解的意义上求解偏微分方程.首先引入测试函数(test functions).测试函数$\phi(x,t), \phi \in C_0^{\infty}[\mathbb{R}\times [0,\infty)]$.具有无穷可微性，并且是紧支的，即在定义域边界附近解趋于0.将测试函数乘在方程两边得到
+	\begin{equation} \label{scl}
+		\phi u_t + \phi f(u)_x = 0
+	\end{equation}
+对上式积分得到
+	\begin{equation}
+		\int_0^{\infty}\int_{-\infty}^{\infty}\phi u_t + \phi f(u)_x = 0
+	\end{equation}
+应用分部积分
+	\begin{equation}\label{weak sol}
+		\int_0^{\infty}\int_{-\infty}^{\infty}[\phi_t u + \phi_x f(u)]dxdt = 0	
+	\end{equation}
+	
+上式利用了$\phi$是紧支函数的性质.满足(\ref{weak sol})的解称为弱解(weak solution).
+\\
+考虑间断解.即解存在一个跳跃，跳跃所在的位置可用$x=\xi(t)$描述,因而间断的运动速度为
+	\begin{equation}
+		s(t)=\frac{d\xi}{dt}
+	\end{equation}
+在跳跃两侧解的极限为$u^{+}(t)=u(x+,t),u^{-}=u(x-,t)$，并且假设除间断外，解的其他部分是光滑的(至少是$C^1$).将\ref{weak sol}在$(-\infty,\xi(t))$和$(\xi(t),\infty)$两段上进行
+	\begin{equation}
+		\int_0^{\infty}\int_{-\infty}^{\xi(t)}[\phi_t u + \phi_x f(u)] dxdt+ \int_0^{\infty}\int_{\xi(t)}^{\infty} [\phi_t u + \phi_x f(u)] dxdt
+	\end{equation}
+对每一段的积分分别应用分部积分，
+%	\begin{eqnarray}
+%		\int_0^{\infty}\int_{-\infty}^{\xi(t)} [(\phi u)_t + (\phi f(u))_x] dxdt & - & \int_0^{\infty}\int_{-\infty}^{\xi(t)}[\phi u_t  +   \phi f(u)_x] dxdt \nonumber \\
+%				\int_0^{\infty}\int_{\xi(t)}^{\infty} [(\phi u)_t +  (\phi f(u))_x] dxdt & - & \int_0^{\infty}\int_{\xi(t)}^{\infty}[\phi u_t + \phi f(u)_x] dxdt \nonumber \\
+%				= \int_0^{\infty}\int_{-\infty}^{\xi(t)} [(\phi u)_t + (\phi f(u))_x] dxdt & + & \int_0^{\infty}\int_{\xi(t)}^{\infty} [(\phi u)_t +  (\phi f(u))_x] dxdt = 0
+%	\end{eqnarray}
+	
+	\begin{eqnarray} \label{by parts}
+		\lefteqn{\int_0^{\infty}\int_{-\infty}^{\xi(t)} [(\phi u)_t + (\phi f(u))_x] dxdt  -  \int_0^{\infty}\int_{-\infty}^{\xi(t)}[\phi u_t  +   \phi f(u)_x] dxdt} 
+		\nonumber \\
+		& & +				\int_0^{\infty}\int_{\xi(t)}^{\infty} [(\phi u)_t +  (\phi f(u))_x] dxdt  -  \int_0^{\infty}\int_{\xi(t)}^{\infty}[\phi u_t + \phi f(u)_x] dxdt \nonumber \\
+		& & = \int_0^{\infty}\int_{-\infty}^{\xi(t)} [(\phi u)_t + (\phi f(u))_x] dxdt  +  \int_0^{\infty}\int_{\xi(t)}^{\infty} [(\phi u)_t +  (\phi f(u))_x] dxdt \nonumber \\
+		& & = 0
+	\end{eqnarray}
+上式利用了当$u$连续时，\ref{scl}成立.再分别对每段上的积分应用格林定理(Green theorem)，
+	
+	\begin{subequations} \label{Green formula}
+		\begin{align}
+		\int_0^{\infty}\int_{-\infty}^{\xi(t)} [(\phi u)_t + (\phi f(u))_x] dxdt  = 
+		\int\limits_{\xi(t)} [(u^{-}\phi)n_t + (f(u^{-})u^{-})n_x] dl \\
+		\int_0^{\infty}\int_{\xi(t)}^{\infty} [(\phi u)_t + (\phi f(u))_x] dxdt  = 
+		\int\limits_{\xi(t)} [(u^{+} \phi)n_t + (f(u^{+})u^{+})n_x] dl
+		\end{align}
+	\end{subequations}
+在(\ref{Green formula})的推导中已经用到了测试函数的紧支性质.将(\ref{Green formula})代入到(\ref{by parts})，得到
+	\begin{equation*}
+		\int\limits_{\xi(t)} [(u^{-}\phi)n_t + (f(u^{-})u^{-})n_x] dl + \int\limits_{\xi(t)} [(u^{+} \phi)n_t + (f(u^{+})u^{+})n_x] dl = 0
+	\end{equation*}
+对于任意的$\phi(x,t)$上式都成立，因此
+得到
+	\begin{equation}
+		\frac{f(u^{+})-f(u^{-})}{u^{+} - u^{-}} = -\frac{n_t}{n_x} = s(t)
+	\end{equation}
+上式即为表征间断(或者称为激波)传播速度的兰金-雨共纽公式(Rankine-Hugoniot formula).
